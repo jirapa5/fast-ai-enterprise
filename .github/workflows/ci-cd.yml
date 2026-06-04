@@ -1,0 +1,41 @@
+name: AI Enterprise Platform CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-latest
+
+    services:
+      minio:
+        image: minio/minio
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadminpassword
+        ports:
+          - 9000:9000
+        options: --entrypoint "minio server /data"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Automated Testing (Pytest)
+      env:
+        OPENAI_API_KEY: "mock_key_for_ci_testing"
+        MINIO_ENDPOINT: "localhost:9000"
+      run: |
+        pytest
