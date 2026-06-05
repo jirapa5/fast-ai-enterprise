@@ -6,13 +6,27 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 
-from app.config import settings
-
 
 class VectorService:
-
     def __init__(self):
+        self.embeddings = None
+        self.db = None
+
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=50
+        )
+
+    def _initialize(self):
+        if self.db is not None:
+            return
+
         api_key = os.getenv("GOOGLE_API_KEY")
+
+        if not api_key:
+            raise RuntimeError(
+                "GOOGLE_API_KEY is not set"
+            )
 
         self.embeddings = GoogleGenerativeAIEmbeddings(
             model="models/gemini-embedding-001",
@@ -24,12 +38,13 @@ class VectorService:
             embedding_function=self.embeddings
         )
 
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=50
-        )
+    def add_pdf_document(
+        self,
+        file_path: str,
+        source_name: str
+    ):
+        self._initialize()
 
-    def add_pdf_document(self, file_path: str, source_name: str):
         loader = PyPDFLoader(file_path)
 
         docs = loader.load()
@@ -38,7 +53,9 @@ class VectorService:
             doc.metadata["source"] = source_name
             doc.metadata["type"] = "PDF"
 
-        chunks = self.text_splitter.split_documents(docs)
+        chunks = self.text_splitter.split_documents(
+            docs
+        )
 
         self.db.add_documents(chunks)
 
@@ -50,6 +67,8 @@ class VectorService:
         source_name: str,
         document_type: str = "TEXT"
     ):
+        self._initialize()
+
         document = Document(
             page_content=text,
             metadata={
@@ -58,7 +77,9 @@ class VectorService:
             }
         )
 
-        chunks = self.text_splitter.split_documents([document])
+        chunks = self.text_splitter.split_documents(
+            [document]
+        )
 
         self.db.add_documents(chunks)
 
@@ -69,17 +90,28 @@ class VectorService:
         query: str,
         k: int = 3
     ):
-        return self.db.similarity_search(query, k=k)
+        self._initialize()
+
+        return self.db.similarity_search(
+            query,
+            k=k
+        )
 
     def search_similar_context(
         self,
         query: str,
         k: int = 3
     ):
-        results = self.db.similarity_search(query, k=k)
+        self._initialize()
+
+        results = self.db.similarity_search(
+            query,
+            k=k
+        )
 
         return "\n---\n".join(
-            [doc.page_content for doc in results]
+            doc.page_content
+            for doc in results
         )
 
 

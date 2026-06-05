@@ -13,7 +13,7 @@ app = FastAPI(
     version="4.0"
 )
 
-# ลงทะเบียนเชื่อมเส้นทาง API โดยเรียกใช้ชื่อตัวแปรที่ระบุมาด้านบน
+# ลงทะเบียนเชื่อมเส้นทาง API จากตัวแปรที่ระบุมาด้านบน
 app.include_router(document_router)
 app.include_router(chat_router)
 
