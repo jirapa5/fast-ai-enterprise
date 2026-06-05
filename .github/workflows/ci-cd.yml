@@ -35,6 +35,7 @@ jobs:
 
     - name: Run Automated Testing (Pytest)
       env:
+        PYTHONPATH: ${{ github.workspace }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         MINIO_ENDPOINT: "localhost:9000"
