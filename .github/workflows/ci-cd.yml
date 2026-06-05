@@ -42,4 +42,4 @@ jobs:
         MINIO_SECRET_KEY: "minioadminpassword"
         MINIO_BUCKET_NAME: "enterprise-intelligence-data"
       run: |
-        pytest
+        pytest -v
