@@ -18,7 +18,7 @@ jobs:
           MINIO_ROOT_PASSWORD: minioadminpassword
         ports:
           - 9000:9000
-        options: --entrypoint "minio server /data"
+        # options: --entrypoint "minio server /data"
 
     steps:
     - uses: actions/checkout@v4
@@ -38,5 +38,8 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         MINIO_ENDPOINT: "localhost:9000"
+        MINIO_ACCESS_KEY: "minioadmin"
+        MINIO_SECRET_KEY: "minioadminpassword"
+        MINIO_BUCKET_NAME: "enterprise-intelligence-data"
       run: |
         pytest
