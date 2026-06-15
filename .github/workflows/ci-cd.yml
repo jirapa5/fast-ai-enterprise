@@ -42,5 +42,6 @@ jobs:
         MINIO_ACCESS_KEY: "minioadmin"
         MINIO_SECRET_KEY: "minioadminpassword"
         MINIO_BUCKET_NAME: "enterprise-intelligence-data"
+        CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
       run: |
         pytest -v
